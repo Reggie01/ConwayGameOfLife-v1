@@ -1,0 +1,126 @@
+﻿<!DOCTYPE>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width initial-scale=1">
+    <title>Build The Game of Life</title>
+    <!--Artist: Hopstarter-->
+    <!--http://creativecommons.org/licenses/by-nc-nd/4.0/legalcode-->
+    <!--http://www.iconarchive.com/show/sleek-xp-basic-icons-by-hopstarter/Document-Write-icon.html-->
+    <link rel="icon" href="Hopstarter-Sleek-Xp-Basic-Document-Write.ico" type="image/x-icon" />
+    <link href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.6/css/bootstrap.min.css" rel="stylesheet" type="text/css">    
+    <link href="http://fonts.googleapis.com/css?family=Roboto:400,100,300,500,700,900" rel="stylesheet" type="text/css">
+    <link rel="stylesheet" href="main.css">
+    <meta http-equiv="X-UA-Compatible" content="IE=Edge">
+    <meta name="description" content="Zipline: Build the Game of Life, A data visualization development projects.">
+    <meta name="keywords" content="fcc, html, css, recipe box, javascript">
+    <script src="react.js"></script>
+    <script src="react-dom.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/babel-core/5.6.16/browser.js"></script>
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.12.2/jquery.min.js"></script>
+  </head>
+  <body>
+    <div id="app">
+    </div>
+    <script>
+        
+    </script>
+    <script type="text/babel">
+    
+     var Canvas = React.createClass({
+         getInitialState: function() {
+             return {
+                 board_sizes: {
+                     small: {
+                         NUMBER_OF_ROWS: 50,
+                         NUMBER_OF_COLS: 30
+                     },
+                     medium: {
+                         NUMBER_OF_ROWS: 70,
+                         NUMBER_OF_COLS: 50
+                     },
+                     large: {
+                         NUMBER_OF_ROWS: 50,
+                         NUMBER_OF_COLS: 50
+                     }
+                 }
+                 
+             }
+         },
+         componentDidMount: function() {
+           this.updateCanvas();
+         },
+         updateCanvas: function( size ) {
+         
+             var gridSize = size || "medium";            
+             var ctx = this.refs.myCanvas.getContext( "2d" );
+             var boardColumns = this.state.board_sizes[gridSize].NUMBER_OF_COLS;
+             var boardRows = this.state.board_sizes[gridSize].NUMBER_OF_ROWS;
+             var board = [];
+             ctx.fillRect( 0, 0, 100, 100 );
+             
+             console.log( "Number of cols: " + boardColumns );
+             console.log( "Number of rows: " + boardRows );
+             for ( var rows = 0; rows < boardRows; rows++ ) {
+                 for ( var columns = 0; columns < boardColumns; columns++ ) {
+                 
+                 }
+             }
+         },
+         render: function() {
+             return (
+                 <div>
+                 <canvas ref="myCanvas" width="560" height="560" style={{border: "2px solid #d3d3d3"}}></canvas>
+                 <pre>
+                     JSON.stringify( this.state, null, 2 );
+                 </pre>
+                 </div>
+             )
+         }
+     });
+      
+      var App = React.createClass({
+      
+      
+          render: function() {
+              return (
+                  <div>
+                      <h1>ReactJS Game of Life <small><a href="https://en.wikipedia.org/wiki/Conway%27s_Game_of_Life" target="_blank" type="text/html">(click to learn more)</a></small></h1>
+                      <div className="boardState text-center">
+                          <button type="text" id="js_run">Run</button>
+                          <button type="text" id="js_pause">Pause</button>
+                          <button type="text" id="js_clear">Clear</button>
+                          <span className="board_titles">Generation: <span id="generationCount">11</span></span>
+                      </div>
+                      <div className="board ">
+                          <Canvas />
+                      </div>
+                      <div className="board_specs text-center">
+                          <div className="board_sizes">
+                              <span className="board_titles">Board size: </span>
+                              <button id="js_small_board" type="text">Size: 50x30</button>
+                              <button id="js_med_board" type="text">Size: 70x50</button>
+                              <button id="js_lg_board" type="text">Size: 100x80</button>
+                          </div>
+                          <div className="sim_speeds">
+                              <span className="board_titles">Sim Speed: </span>
+                              <button id="js_slow" type="text">Slow</button>
+                              <button id="js_med" type="text">Medium</button>
+                              <button id="js_lg" type="text">Fast</button>
+                          </div>
+                          <div className="board_instructions">
+                              Feel free to add cells while it's running. The cells in light red are younger, dark red are older. Enjoy!
+                          </div>
+                      </div>
+                      <pre>
+                          { JSON.stringify(this.state, null, 2) }
+                      </pre>
+                  </div>
+              )
+          }
+      });
+      
+      ReactDOM.render( <App  />, document.getElementById( "app" ) );
+    </script>
+  </body>
+</html>
