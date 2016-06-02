@@ -32,42 +32,75 @@
              return {
                  board_sizes: {
                      small: {
-                         NUMBER_OF_ROWS: 50,
-                         NUMBER_OF_COLS: 30
+                         NUMBER_OF_ROWS: 30,
+                         NUMBER_OF_COLS: 50
                      },
                      medium: {
-                         NUMBER_OF_ROWS: 70,
-                         NUMBER_OF_COLS: 50
+                         NUMBER_OF_ROWS: 50,
+                         NUMBER_OF_COLS: 70
                      },
                      large: {
-                         NUMBER_OF_ROWS: 50,
-                         NUMBER_OF_COLS: 50
+                         NUMBER_OF_ROWS: 80,
+                         NUMBER_OF_COLS: 100
                      }
-                 }
+                 },
                  
              }
          },
          componentDidMount: function() {
-           this.updateCanvas();
+             this.updateCanvas();
+             console.log( "Component Did Mount" );
+         },
+         componentWillMount: function() {
+             console.log( "Component will mount" );
+         },
+         // update when parent component state changes
+         componentWillUpdate: function() {
+             console.log("Component Will Update" );
+             console.log( "Size: " + this.props.size );
+         },
+         componentDidUpdate: function() {
+             console.log( "Component Did Update" );
+             console.log( "Size: " + this.props.size );
+             this.updateCanvas();
          },
          updateCanvas: function( size ) {
-         
-             var gridSize = size || "medium";            
+             
+             // var gridSize = size || "medium";       
+             var gridSize = this.props.size || "medium";
+             var canvas = this.refs.myCanvas; 
+             if( gridSize === "medium" ){
+                 canvas.width = 800;
+                 canvas.height = 800;
+             } else if ( gridSize === "small" ){
+                 canvas.width = 560;
+                 canvas.height = 560;
+             } else {
+                 canvas.width = 1000;
+                 canvas.height = 1000;
+             }
              var ctx = this.refs.myCanvas.getContext( "2d" );
              var boardColumns = this.state.board_sizes[gridSize].NUMBER_OF_COLS;
              var boardRows = this.state.board_sizes[gridSize].NUMBER_OF_ROWS;
+             var cellSize = canvas.width / boardColumns;
              var board = [];
-             ctx.fillRect( 0, 0, 100, 100 );
-             
+             ctx.fillStyle = "#FFFF";
+             ctx.fillRect( 0, 0, canvas.width, canvas.height );
+             console.log( "Size: " + this.props.size );
              console.log( "Number of cols: " + boardColumns );
              console.log( "Number of rows: " + boardRows );
+             console.log( "Cell Size : " + cellSize );
              for ( var rows = 0; rows < boardRows; rows++ ) {
                  for ( var columns = 0; columns < boardColumns; columns++ ) {
-                 
+                     ctx.strokeStyle = "#CCC";
+                     ctx.strokeRect( columns * cellSize,  rows * cellSize, cellSize, cellSize );
+                     // ctx.fillStyle = "#FF0000";
+                     // ctx.fillRect( columns * cellSize,  rows * cellSize, cellSize, cellSize );
                  }
              }
          },
          render: function() {
+             console.log( "rendering..." );
              return (
                  <div>
                  <canvas ref="myCanvas" width="560" height="560" style={{border: "2px solid #d3d3d3"}}></canvas>
@@ -80,33 +113,81 @@
      });
       
       var App = React.createClass({
-      
-      
+          getInitialState: function() {
+              return {
+                  size: "medium"
+              }
+          },
+          setSmallGrid: function( e ) {
+              e.preventDefault();
+              this.setState({
+                  size: "small"
+              });
+              console.log( "set small grid" );
+          },
+          setMediumGrid: function( e ) {
+              e.preventDefault();
+              this.setState({
+                  size: "medium"
+              });
+              console.log( "set medium grid" );
+          },
+          setLargeGrid: function( e ) {
+              e.preventDefault();
+              this.setState({
+                  size: "large"
+              });
+              console.log( "set large grid" );
+          },
+          run: function( e ){
+              e.preventDefault();
+              console.log( "this run" );
+          },
+          pause: function( e ){
+              e.preventDefault();
+              console.log( "this pause" );
+          },
+          clear: function( e ) {
+              e.preventDefault();
+              console.log( "this clear" );
+          },
+          setSpeedToSlow: function( e ){
+              e.preventDefault();
+              console.log( "set speed to slow" );
+          },
+          setSpeedToMedium: function( e ) {
+              e.preventDefault();
+              console.log( "set speed to medium" );
+          },
+          setSpeedToFast: function( e ) {
+              e.preventDefault();
+              console.log( "set speed to fast" );
+          },
           render: function() {
               return (
                   <div>
                       <h1>ReactJS Game of Life <small><a href="https://en.wikipedia.org/wiki/Conway%27s_Game_of_Life" target="_blank" type="text/html">(click to learn more)</a></small></h1>
                       <div className="boardState text-center">
-                          <button type="text" id="js_run">Run</button>
-                          <button type="text" id="js_pause">Pause</button>
-                          <button type="text" id="js_clear">Clear</button>
+                          <button className="btn" type="text" id="js_run" onClick={this.run}>Run</button>
+                          <button className="btn" type="text" id="js_pause" onClick={this.pause}>Pause</button>
+                          <button className="btn" type="text" id="js_clear" onClick={this.clear}>Clear</button>
                           <span className="board_titles">Generation: <span id="generationCount">11</span></span>
                       </div>
                       <div className="board ">
-                          <Canvas />
+                          <Canvas size={this.state.size} />
                       </div>
                       <div className="board_specs text-center">
                           <div className="board_sizes">
                               <span className="board_titles">Board size: </span>
-                              <button id="js_small_board" type="text">Size: 50x30</button>
-                              <button id="js_med_board" type="text">Size: 70x50</button>
-                              <button id="js_lg_board" type="text">Size: 100x80</button>
+                              <button className="btn" id="js_small_board" type="text" onClick={this.setSmallGrid}>Size: 50x30</button>
+                              <button className="btn" id="js_med_board" type="text" onClick={this.setMediumGrid}>Size: 70x50</button>
+                              <button className="btn" id="js_lg_board" type="text" onClick={this.setLargeGrid}>Size: 100x80</button>
                           </div>
                           <div className="sim_speeds">
                               <span className="board_titles">Sim Speed: </span>
-                              <button id="js_slow" type="text">Slow</button>
-                              <button id="js_med" type="text">Medium</button>
-                              <button id="js_lg" type="text">Fast</button>
+                              <button className="btn" id="js_slow" type="text" onClick={this.setSpeedToSlow}>Slow</button>
+                              <button className="btn" id="js_med" type="text" onClick={this.setSpeedToMedium}>Medium</button>
+                              <button className="btn" id="js_lg" type="text" onClick={this.setSpeedToFast}>Fast</button>
                           </div>
                           <div className="board_instructions">
                               Feel free to add cells while it's running. The cells in light red are younger, dark red are older. Enjoy!
