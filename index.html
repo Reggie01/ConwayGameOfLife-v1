@@ -22,9 +22,7 @@
   <body>
     <div id="app">
     </div>
-    <script>
-        
-    </script>
+    <script src="raf.js"></script>
     <script type="text/babel">
     
      var Canvas = React.createClass({
@@ -33,19 +31,25 @@
                  board_sizes: {
                      small: {
                          NUMBER_OF_ROWS: 30,
-                         NUMBER_OF_COLS: 50
+                         NUMBER_OF_COLS: 50,
+                         width: 560,
+                         height: 560
                      },
                      medium: {
                          NUMBER_OF_ROWS: 50,
-                         NUMBER_OF_COLS: 70
+                         NUMBER_OF_COLS: 70,
+                         width: 800,
+                         height: 800
                      },
                      large: {
                          NUMBER_OF_ROWS: 80,
-                         NUMBER_OF_COLS: 100
+                         NUMBER_OF_COLS: 100,
+                         width: 1000,
+                         height: 1000
                      }
                  },
                  
-             }
+             };
          },
          componentDidMount: function() {
              this.updateCanvas();
@@ -64,10 +68,134 @@
              console.log( "Size: " + this.props.size );
              this.updateCanvas();
          },
-         updateCanvas: function( size ) {
+         buildGameBoard: function( ctx, boardColumns, boardRows, cellSizeWidth, cellSizeHeight, boardState ) {
+             var WIDTH = this.state.board_sizes[this.props.size].width;
+             var HEIGHT = this.state.board_sizes[this.props.size].height;
+            
+           console.log("Building game board" );
+            
+             // Clear Board
+             ctx.fillRect( 0, 0, WIDTH, HEIGHT );
              
-             // var gridSize = size || "medium";       
+             for ( var rows = 0; rows < boardRows; rows++ ) {
+                 for ( var columns = 0; columns < boardColumns; columns++ ) {
+                     if( boardState[rows][columns] ) {
+                         ctx.fillStyle = "#FF0000";
+                         ctx.fillRect( columns * cellSizeWidth,  rows * cellSizeHeight, cellSizeWidth, cellSizeHeight );
+                     } else {
+                         ctx.fillStyle = "#FFFFFF";
+                         ctx.fillRect( columns * cellSizeWidth, rows * cellSizeHeight, cellSizeWidth, cellSizeHeight );
+                     }
+                     ctx.strokeStyle = "#CCC";
+                     ctx.strokeRect( columns * cellSizeWidth,  rows * cellSizeHeight, cellSizeWidth, cellSizeHeight );
+                     
+                 }
+             }
+         },
+         initialBoardState: function( boardSize ) {
+             
+             var columns = this.state.board_sizes[boardSize].NUMBER_OF_COLS,
+                   rows = this.state.board_sizes[boardSize].NUMBER_OF_ROWS;
+                               
+             var i = 0;
+             var j = 0;
+             var boardState = [];
+             for ( i = 0; i < rows; i++ ) {
+                 boardState.push([]);
+                 for( j = 0; j < columns; j++ ){
+                     
+                     if( j % ( columns / 5 ) ){
+                         boardState[i].push( 0 );
+                     } else {
+                         boardState[i].push( 1 );
+                     }
+                     
+                 }
+             }
+             
+             return boardState;
+         },
+         // http://stackoverflow.com/questions/3417183/modulo-of-negative-numbers
+         // wrapIndex function wraps for negative numbers 
+         wrapIndex: function( i, i_max ) {
+             return (( i % i_max ) + i_max ) % i_max;
+         },
+         isCellAlive: function( x, y, boardColumns, boardRows, oldBoardState ){
+            
+            var count = 0;
+            var isCurrentUnitAlive = oldBoardState[x][y] > 0 ? true : false;         
+            
+           if( oldBoardState[this.wrapIndex(x - 1, boardRows)][this.wrapIndex(y - 1, boardColumns)] ) {
+                count += 1;   
+            }
+            if( oldBoardState[x][this.wrapIndex(y - 1, boardColumns)] ) {
+                count += 1;   
+            }
+            if( oldBoardState[this.wrapIndex(x + 1, boardRows)][this.wrapIndex(y - 1, boardColumns)] ) {
+                count += 1;   
+            }
+            if( oldBoardState[this.wrapIndex(x - 1, boardRows)][y] ) {
+                count += 1;   
+            }
+            if( oldBoardState[this.wrapIndex(x + 1, boardRows)][y] ) {
+                count += 1;   
+            }
+            if( oldBoardState[this.wrapIndex(x - 1, boardRows)][this.wrapIndex(y + 1, boardColumns)] ) {
+                count += 1;   
+            }
+            if( oldBoardState[x][this.wrapIndex(y + 1, boardColumns)] ) {
+                count += 1;   
+            }
+            if( oldBoardState[this.wrapIndex(x + 1, boardRows)][this.wrapIndex(y + 1, boardColumns)] ) {
+                count += 1;   
+            }
+            
+            if( isCurrentUnitAlive && count < 2 ) {
+                return false;
+            } else if( isCurrentUnitAlive && count === 2 || count === 3 ) {
+                return true;
+            } else if( isCurrentUnitAlive && count > 3 ) {
+                return false;
+            } else if( !isCurrentUnitAlive && count === 3 ) {
+                return true;
+            }
+                       
+         },
+         updateBoardState: function( boardColumns, boardRows, oldBoardState ) {
+             
+             var rows = 0,
+                   columns = 0,
+                   newBoardState = [];
+            
+             for( rows; rows < boardRows; rows++ ){
+                 newBoardState.push( [] );
+                 for( columns; columns < boardColumns; columns++ ) {
+                     if( this.isCellAlive( rows, columns, boardColumns, boardRows, oldBoardState ) ){
+                         newBoardState[rows][columns] = 1;
+                     } else {
+                         newBoardState[rows][columns] = 0;
+                     }
+                 }
+                 columns = 0;
+             }
+
+             return newBoardState;
+         },
+         animate: function( ctx, boardColumns, boardRows, cellSizeWidth, cellSizeHeight, boardState ) {
+             
+             var oldBoardState = boardState;
+             var currentBoardState = this.updateBoardState( boardColumns, boardRows, oldBoardState );
+             this.buildGameBoard( ctx, boardColumns, boardRows, cellSizeWidth, cellSizeHeight, currentBoardState );
+             // console.log( "Calling setTimeout" );
+             // setTimeout(function() {}, 10000 );
+             requestAnimationFrame( this.animate( ctx, boardColumns, boardRows, cellSizeWidth, cellSizeHeight, currentBoardState ) );
+         },
+         updateCanvas: function( size ) {
+               
              var gridSize = this.props.size || "medium";
+             
+             var boardState = this.initialBoardState( gridSize );
+             
              var canvas = this.refs.myCanvas; 
              if( gridSize === "medium" ){
                  canvas.width = 800;
@@ -82,22 +210,15 @@
              var ctx = this.refs.myCanvas.getContext( "2d" );
              var boardColumns = this.state.board_sizes[gridSize].NUMBER_OF_COLS;
              var boardRows = this.state.board_sizes[gridSize].NUMBER_OF_ROWS;
-             var cellSize = canvas.width / boardColumns;
+             var cellSizeWidth = canvas.width / boardColumns;
+             var cellSizeHeight = canvas.height / boardRows;
              var board = [];
              ctx.fillStyle = "#FFFF";
              ctx.fillRect( 0, 0, canvas.width, canvas.height );
-             console.log( "Size: " + this.props.size );
-             console.log( "Number of cols: " + boardColumns );
-             console.log( "Number of rows: " + boardRows );
-             console.log( "Cell Size : " + cellSize );
-             for ( var rows = 0; rows < boardRows; rows++ ) {
-                 for ( var columns = 0; columns < boardColumns; columns++ ) {
-                     ctx.strokeStyle = "#CCC";
-                     ctx.strokeRect( columns * cellSize,  rows * cellSize, cellSize, cellSize );
-                     // ctx.fillStyle = "#FF0000";
-                     // ctx.fillRect( columns * cellSize,  rows * cellSize, cellSize, cellSize );
-                 }
-             }
+            
+            this.buildGameBoard( ctx, boardColumns, boardRows, cellSizeWidth, cellSizeHeight, boardState );
+            this.animate( ctx, boardColumns, boardRows, cellSizeWidth, cellSizeHeight, boardState );
+                         
          },
          render: function() {
              console.log( "rendering..." );
@@ -105,7 +226,7 @@
                  <div>
                  <canvas ref="myCanvas" width="560" height="560" style={{border: "2px solid #d3d3d3"}}></canvas>
                  <pre>
-                     JSON.stringify( this.state, null, 2 );
+                     {JSON.stringify( this.state, null, 2 )}
                  </pre>
                  </div>
              )

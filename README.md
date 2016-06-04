@@ -24,6 +24,7 @@ My codepen version of the Markdown Previewer is at [codepen](https://codepen.io/
 ### APIs / Libraries / Articles
 * [Does John Conway hate his Game of Life?](https://www.youtube.com/watch?v=E8kUJL04ELA)
 * [Conway's Game of Life](https://en.wikipedia.org/wiki/Conway%27s_Game_of_Life)
+* [polyfill for window.requestAnimationFrame ](http://www.paulirish.com/2011/requestanimationframe-for-smart-animating/) 
 
 ### Technologies Used
 * javascript
