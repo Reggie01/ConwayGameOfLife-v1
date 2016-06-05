@@ -22,7 +22,7 @@
   <body>
     <div id="app">
     </div>
-    <script src="raf.js"></script>
+    <!-- <script src="raf.js"></script> -->
     <script type="text/babel">
     
      var Canvas = React.createClass({
@@ -48,7 +48,7 @@
                          height: 1000
                      }
                  },
-                 
+                 interval: ""
              };
          },
          componentDidMount: function() {
@@ -72,8 +72,6 @@
              var WIDTH = this.state.board_sizes[this.props.size].width;
              var HEIGHT = this.state.board_sizes[this.props.size].height;
             
-           console.log("Building game board" );
-            
              // Clear Board
              ctx.fillRect( 0, 0, WIDTH, HEIGHT );
              
@@ -92,6 +90,9 @@
                  }
              }
          },
+         generateRandomOneOrZero: function() {
+             return Math.random() > .5 ? 1 : 0;
+         },
          initialBoardState: function( boardSize ) {
              
              var columns = this.state.board_sizes[boardSize].NUMBER_OF_COLS,
@@ -104,14 +105,32 @@
                  boardState.push([]);
                  for( j = 0; j < columns; j++ ){
                      
-                     if( j % ( columns / 5 ) ){
-                         boardState[i].push( 0 );
-                     } else {
-                         boardState[i].push( 1 );
-                     }
+                     boardState[i][j] = this.generateRandomOneOrZero();
                      
                  }
              }
+             
+             /* test data Toad(period 2)
+                 boardState[1][1] = 1;
+                 boardState[1][2] = 1;
+                 boardState[1][3] = 1;
+                 boardState[2][0] = 1;
+                 boardState[2][1] = 1;
+                 boardState[2][2] = 1;
+             /*
+             
+             /* Test data
+               * Beacon (period 2)
+            
+               boardState[1][1] = 1;
+               boardState[1][2] = 1;
+               boardState[2][1] = 1;
+               boardState[2][2] = 1;
+               boardState[3][3] = 1;
+               boardState[3][4] = 1;
+               boardState[4][3] = 1;
+               boardState[4][4] = 1;
+             */
              
              return boardState;
          },
@@ -120,33 +139,33 @@
          wrapIndex: function( i, i_max ) {
              return (( i % i_max ) + i_max ) % i_max;
          },
-         isCellAlive: function( x, y, boardColumns, boardRows, oldBoardState ){
+         isCellAlive: function( row, column, boardColumns, boardRows, oldBoardState ){
             
-            var count = 0;
-            var isCurrentUnitAlive = oldBoardState[x][y] > 0 ? true : false;         
+            var count = 0,
+                   isCurrentUnitAlive = oldBoardState[row][column] > 0 ? true : false;         
             
-           if( oldBoardState[this.wrapIndex(x - 1, boardRows)][this.wrapIndex(y - 1, boardColumns)] ) {
+           if( oldBoardState[this.wrapIndex( row - 1, boardRows )][this.wrapIndex( column - 1, boardColumns )] ) {
                 count += 1;   
             }
-            if( oldBoardState[x][this.wrapIndex(y - 1, boardColumns)] ) {
+            if( oldBoardState[this.wrapIndex(row - 1, boardRows)][column] ) {
                 count += 1;   
             }
-            if( oldBoardState[this.wrapIndex(x + 1, boardRows)][this.wrapIndex(y - 1, boardColumns)] ) {
+            if( oldBoardState[this.wrapIndex( row - 1, boardRows )][this.wrapIndex( column + 1, boardColumns )] ) {
                 count += 1;   
             }
-            if( oldBoardState[this.wrapIndex(x - 1, boardRows)][y] ) {
+            if( oldBoardState[row][this.wrapIndex( column - 1, boardColumns )]  ){
                 count += 1;   
             }
-            if( oldBoardState[this.wrapIndex(x + 1, boardRows)][y] ) {
+            if( oldBoardState[row][this.wrapIndex( column + 1, boardColumns )] ) {
                 count += 1;   
             }
-            if( oldBoardState[this.wrapIndex(x - 1, boardRows)][this.wrapIndex(y + 1, boardColumns)] ) {
+            if( oldBoardState[this.wrapIndex( row + 1, boardRows )][this.wrapIndex( column - 1, boardColumns )] ) {
                 count += 1;   
             }
-            if( oldBoardState[x][this.wrapIndex(y + 1, boardColumns)] ) {
+            if( oldBoardState[this.wrapIndex( row + 1, boardRows )][column] ) {
                 count += 1;   
             }
-            if( oldBoardState[this.wrapIndex(x + 1, boardRows)][this.wrapIndex(y + 1, boardColumns)] ) {
+            if( oldBoardState[this.wrapIndex( row + 1, boardRows )][this.wrapIndex( column + 1, boardColumns )] ) {
                 count += 1;   
             }
             
@@ -183,12 +202,15 @@
          },
          animate: function( ctx, boardColumns, boardRows, cellSizeWidth, cellSizeHeight, boardState ) {
              
-             var oldBoardState = boardState;
-             var currentBoardState = this.updateBoardState( boardColumns, boardRows, oldBoardState );
-             this.buildGameBoard( ctx, boardColumns, boardRows, cellSizeWidth, cellSizeHeight, currentBoardState );
-             // console.log( "Calling setTimeout" );
-             // setTimeout(function() {}, 10000 );
-             requestAnimationFrame( this.animate( ctx, boardColumns, boardRows, cellSizeWidth, cellSizeHeight, currentBoardState ) );
+             var oldBoardState = boardState,
+                   currentBoardState = this.updateBoardState( boardColumns, boardRows, oldBoardState ),
+                   interval;
+             
+            this.buildGameBoard( ctx, boardColumns, boardRows, cellSizeWidth, cellSizeHeight, currentBoardState );
+                          
+            interval = window.setTimeout( function() {
+                this.animate( ctx, boardColumns, boardRows, cellSizeWidth, cellSizeHeight, currentBoardState );
+            }.bind( this ), 1000/17 );
          },
          updateCanvas: function( size ) {
                
