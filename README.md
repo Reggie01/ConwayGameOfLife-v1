@@ -2,7 +2,7 @@
 
 This is Free Code Camp Data Visualization project "[Build the Game of Life](https://www.freecodecamp.com/challenges/build-the-game-of-life)". Follow the link
 to see all user stories for the [Build the Game of Life](https://www.freecodecamp.com/challenges/build-the-game-of-life).
-My codepen version of the Markdown Previewer is at [codepen](https://codepen.io/Reggie01/pen/RaBXxw) and source code [github](https://github.com/Reggie01/RecipeBox).
+
 
 ### User Stories
 * User Story: When I first arrive at the game, it will randomly generate a board and start playing.
@@ -20,6 +20,7 @@ My codepen version of the Markdown Previewer is at [codepen](https://codepen.io/
 
 ### Components
   * App - parent
+  * Canvas - child 
   
 ### APIs / Libraries / Articles
 * [Does John Conway hate his Game of Life?](https://www.youtube.com/watch?v=E8kUJL04ELA)
