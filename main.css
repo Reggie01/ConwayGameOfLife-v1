@@ -2,10 +2,10 @@
 
     1. Basic Document Styles
     2. App Container
-    3. Accordian
-    4. List
-    5. Modal
-    6. Button
+    3. App
+    4. 
+    5. 
+    6. 
     7. Media Types
     
 */
@@ -97,6 +97,9 @@ p {
   padding-bottom: 15px;
   background-color: #FFFFFF;
   box-shadow: 0 4px 5px 0 rgba(0, 0, 0, 0.14), 0 1px 10px 0 rgba(0, 0, 0, 0.12), 0 2px 4px -1px rgba(0, 0, 0, 0.2); }
+
+#app {
+  background-color: #FFAAAA; }
 
 /* 7. Button
 -------------------------------------------------*/
