@@ -26,6 +26,8 @@
     <script type="text/babel">
     
      var Canvas = React.createClass({
+          _intervalId: null,
+         _boardState: null,
          getInitialState: function() {
              return {
                  board_sizes: {
@@ -48,15 +50,22 @@
                          height: 1000
                      }
                  },
-                 interval: ""
+                 boardState: ""
              };
          },
          componentDidMount: function() {
              this.updateCanvas();
              console.log( "Component Did Mount" );
          },
+         shouldComponentUpdate: function( nextProps, nextState ) {
+             console.log( nextState );
+             console.log( "hello" );
+         },
          componentWillMount: function() {
              console.log( "Component will mount" );
+         },
+         componentWillUnmount() {
+             console.log( "Component will unmount." );
          },
          // update when parent component state changes
          componentWillUpdate: function() {
@@ -131,6 +140,8 @@
                boardState[4][3] = 1;
                boardState[4][4] = 1;
              */
+             // initialize boardState
+             this._boardState = boardState;
              
              return boardState;
          },
@@ -197,26 +208,32 @@
                  }
                  columns = 0;
              }
-
+             
+             this._boardState = newBoardState;
+             
              return newBoardState;
          },
          animate: function( ctx, boardColumns, boardRows, cellSizeWidth, cellSizeHeight, boardState ) {
              
              var oldBoardState = boardState,
-                   currentBoardState = this.updateBoardState( boardColumns, boardRows, oldBoardState ),
-                   interval;
+                   currentBoardState = this.updateBoardState( boardColumns, boardRows, oldBoardState );
              
             this.buildGameBoard( ctx, boardColumns, boardRows, cellSizeWidth, cellSizeHeight, currentBoardState );
-                          
-            interval = window.setTimeout( function() {
-                this.animate( ctx, boardColumns, boardRows, cellSizeWidth, cellSizeHeight, currentBoardState );
-            }.bind( this ), 1000/17 );
+            
+           var old = new Date().getTime();
+           
+           this._intervalId = window.requestAnimationFrame( 
+               function() { 
+                   this.animate( ctx, boardColumns, boardRows, cellSizeWidth, cellSizeHeight, currentBoardState );
+               }.bind( this ), 1000
+           )
+          console.log( this._intervalId );
          },
          updateCanvas: function( size ) {
                
              var gridSize = this.props.size || "medium";
-             
-             var boardState = this.initialBoardState( gridSize );
+             console.log( this._boardState );
+             var boardState = this._boardState || this.initialBoardState( gridSize );
              
              var canvas = this.refs.myCanvas; 
              if( gridSize === "medium" ){
@@ -242,11 +259,29 @@
             this.animate( ctx, boardColumns, boardRows, cellSizeWidth, cellSizeHeight, boardState );
                          
          },
+         stop: function(e) {
+             e.preventDefault( e );
+             console.log( "Stop..." );             
+             window.cancelAnimationFrame( this._intervalId );
+         },
+         start: function( e ) {
+             e.preventDefault( e );
+             console.log( "start board" );
+             this._intervalId = window.requestAnimationFrame(
+                 function() {
+                     this.updateCanvas()
+                 }.bind( this ), 1000
+             )
+         },
          render: function() {
              console.log( "rendering..." );
              return (
                  <div>
                  <canvas ref="myCanvas" width="560" height="560" style={{border: "2px solid #d3d3d3"}}></canvas>
+                 <div>
+                   <button className="btn" onClick={this.start} >Start</button>
+                   <button className="btn" onClick={this.stop} >Stop</button>
+                 </div>
                  <pre>
                      {JSON.stringify( this.state, null, 2 )}
                  </pre>
@@ -260,7 +295,7 @@
               return {
                   size: "medium"
               }
-          },
+          },      
           setSmallGrid: function( e ) {
               e.preventDefault();
               this.setState({
@@ -289,6 +324,7 @@
           pause: function( e ){
               e.preventDefault();
               console.log( "this pause" );
+              
           },
           clear: function( e ) {
               e.preventDefault();
